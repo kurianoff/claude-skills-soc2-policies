@@ -86,6 +86,10 @@ Claude will ask for your company name. It is stored in the Project's persistent 
 
 ![First launch — company name onboarding](images/claude-skills-soc2-policies-1.png)
 
+### Policy dashboard
+
+Once you enter your company name, Claude builds a personalized dashboard with all 17 bundled SOC 2 policies. Each card shows the policy category, a short description, and its review status. You can filter by category and track overall readiness at a glance.
+
 ![SOC 2 policies dashboard](images/claude-skills-soc2-policies-2.png)
 
 ### Reviewing a policy
