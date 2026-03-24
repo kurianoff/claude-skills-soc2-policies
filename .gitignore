@@ -1,0 +1,11 @@
+# Local working directory — not part of the published repo
+.claude/
+
+# Built .skill files — run `make build` to generate these locally
+dist/
+
+# Local markdown template copies (not part of the published repo)
+templates.md/
+
+# Downloaded/uploaded .skill files in the project root
+*.skill

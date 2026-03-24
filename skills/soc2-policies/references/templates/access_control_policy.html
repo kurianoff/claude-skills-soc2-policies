@@ -1,0 +1,73 @@
+<h1>Access Control Policy</h1>
+<h2>Purpose</h2>
+<p>The goal is to restrict access to information, systems, networks, and facilities to authorized individuals, aligning with business goals.</p>
+<h2>Scope</h2>
+<p>This policy applies to all [COMPANY NAME] information systems processing, storing, or transmitting confidential data as defined in the [COMPANY NAME] Data Management Policy. It is relevant to all [COMPANY NAME] employees and external parties with access to [COMPANY NAME] networks and resources.</p>
+<h2>Policy</h2>
+<p>Access to computing resources is restricted to those with a legitimate business need. Access rights are allocated or revoked according to this Access Control Policy.</p>
+<h2>Access Control Requirements</h2>
+<p>[COMPANY NAME] will determine the type and level of access for individual users based on the "principle of least privilege" ensuring access is granted only as necessary to perform job functions. Any permissions not explicitly granted are prohibited by default.<br>Role-Based Access Control (RBAC) will be the primary method for consistent access control, assigning rights and restrictions to groups. Additional permissions may be granted to individual user accounts with system owner approval.<br>Multi-Factor Authentication (MFA) is required for all privileged access to production infrastructure.</p>
+<h2>Network Access</h2>
+<ul>
+<li>Access to [COMPANY NAME] networks must be formally documented, including the standard role, approver, grantor, and date.</li>
+<li>Access is granted only to authorized employees/contractors and third-parties with a business need and signed contracts or statements of work.</li>
+<li>Guests may access guest networks after registering with office staff.</li>
+<li>Remote connections to production systems must be encrypted.</li>
+</ul>
+<h2>Customer Access Management</h2>
+<p>For cross-account access using AWS IAM roles, generate external IDs to ensure unique and secure configurations, preventing impersonation. External IDs must be unique across all customers to avoid security risks.</p>
+<h2>User Access Management</h2>
+<p>All personnel must have unique user identifiers, and credentials must not be shared. Separate accounts should be used for normal and administrative functions where feasible. Shared administrative accounts may use password management systems for business continuity.</p>
+<h3>User Registration and Deregistration</h3>
+<p>Only authorized administrators can create new user IDs based on documented requests and approvals. User IDs must be promptly disabled or removed when no longer needed, following SLAs.</p>
+<h3>User Access Provisioning</h3>
+<ul>
+<li>New employees or contractors must complete all HR on-boarding tasks before accessing production systems.</li>
+<li>Access is restricted to job necessities and documented with appropriate approvals.</li>
+<li>Access is not granted before the official start date.</li>
+<li>Records of permission changes must be maintained for at least one year.</li>
+</ul>
+<h3>Management of Privileged Access</h3>
+<p>Granting of administrative rights requires asset owner approval and is strictly controlled.</p>
+<h3>User Access Reviews</h3>
+<p>Semi annual reviews of user access rights are conducted to ensure compliance. Access reviews also occur with any job role change.</p>
+<h3>Removal &amp; Adjustment of Access Rights</h3>
+<p>Access rights are removed upon termination or job function change within 40 business hours.</p>
+<h3>Access Provisioning, Deprovisioning, and Change Procedure</h3>
+<p>Details on access management procedures are available in Appendix A of this policy.</p>
+<h3>Segregation of Duties</h3>
+<p>Conflicting duties are separated to prevent unauthorized use or modification of assets. No single person should have access without authorization or detection. Collusion potential is considered in access level determinations.</p>
+<h2>User Responsibility for Secret Authentication Information</h2>
+<p>All personnel and third-party users must protect their secret authentication information according to the Information Security Policy.</p>
+<h2>Password Policy</h2>
+<ul>
+<li>Passwords for confidential systems should have at least 10 characters, including one uppercase letter and one number.</li>
+<li>Systems should prevent the reuse of the last 16 passwords.</li>
+<li>Accounts lock after 6 failed attempts.</li>
+<li>Passwords expire every 90 days.</li>
+<li>Initial passwords must be unique and changed upon first login.</li>
+<li>User identity verification is required for manual password resets.</li>
+<li>No limit on character types for passwords.</li>
+<li>Maximum password length is 64 characters.</li>
+<li>Do not use secret questions for password resets.</li>
+<li>Email verification is required for password changes.</li>
+<li>Current password must be entered during changes.</li>
+<li>New passwords checked against common and leaked passwords.</li>
+<li>Regular checks for password compromise.</li>
+<li>Passwords stored using hashed and salted formats.</li>
+<li>Enforce account lockout and brute-force protection.</li>
+</ul>
+<h2>System and Application Access</h2>
+<p>Applications must restrict access to authorized users based on business needs, data sensitivity, and risk assessments. Default accounts and vendor credentials must be changed before deployment.</p>
+<h3>Secure Log-on Procedures</h3>
+<p>Log-on controls should match data sensitivity and access risk, supported by overall security architecture.</p>
+<h3>Password Management System</h3>
+<p>Interactive systems help enforce password standards and protect password storage and transmission through cryptographic methods.</p>
+<h3>Use of Privileged Utility Programs</h3>
+<p>Restrict the use of programs that can override controls to essential personnel. System changes and utility use must be logged, and extraneous programs removed.</p>
+<h3>Access to Program Source Code</h3>
+<p>Strict control of source code access is required to prevent unauthorized changes and protect intellectual property. Access must be logged for review.</p>
+<h2>Exceptions</h2>
+<p>Requests for exceptions to this policy must be approved by the IT Manager.</p>
+<h2>Violations &amp; Enforcement</h2>
+<p>Report policy violations to the IT Manager. Violations may lead to system privilege withdrawal, disciplinary action, or employment termination.</p>

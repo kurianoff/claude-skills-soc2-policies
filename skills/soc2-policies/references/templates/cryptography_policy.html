@@ -1,0 +1,20 @@
+<h1>Cryptography Policy</h1>
+<h2>Purpose</h2>
+<p>This policy ensures the proper and effective use of cryptography to protect the confidentiality, authenticity, and integrity of information. It establishes requirements for the use and protection of cryptographic keys and methods throughout the entire encryption lifecycle.</p>
+<h2>Scope</h2>
+<p>This policy applies to all information systems developed and/or controlled by [COMPANY NAME] that store or transmit confidential data.</p>
+<h2>Policy</h2>
+<p>[COMPANY NAME] will evaluate the risks associated with processing and storing data and implement cryptographic controls to mitigate those risks as appropriate. Strong cryptography and key management processes and procedures will be implemented and documented. All encryption will adhere to industry standards, including NIST SP 800-57.<br>Customer or confidential company data must use strong ciphers and configurations in accordance with vendor recommendations and industry best practices, including NIST, when stored or transferred over a public network.</p>
+<h2>Key Management</h2>
+<p>Access to keys and secrets must be tightly controlled according to the Access Control Policy.<br>The table below outlines the recommended usage for cryptographic keys:</p>
+<table><thead><tr><th>Domain</th><th>Key Type</th><th>Algorithm</th><th>Key Length</th><th>Max Expiration</th></tr></thead><tbody>
+<tr><td>Web Certificate</td><td>RSA or ECC with SHA2+ signature</td><td>RSA or ECC with SHA2+ signature</td><td>2048 bit or greater/RSA, 256 bit or greater/ECC</td><td>Up to 1 year</td></tr>
+<tr><td>Web Cipher (TLS)</td><td>Asymmetric Encryption</td><td>Ciphers of B or greater grade on SSL Labs Rating</td><td>Varies</td><td>N/A</td></tr>
+<tr><td>Confidential Data at Rest</td><td>Symmetric Encryption</td><td>AES</td><td>256 bit</td><td>1 Year</td></tr>
+<tr><td>Passwords</td><td>One-way Hash</td><td>Bcrypt, PBKDF2, scrypt, Argon2</td><td>256 bit+10K Stretch. Include unique cryptographic salt+pepper</td><td>N/A</td></tr>
+<tr><td>Endpoint Storage (SSD/HDD)</td><td>Symmetric Encryption</td><td>AES</td><td>256 bit</td><td>N/A</td></tr>
+</tbody></table>
+<h2>Exceptions</h2>
+<p>Requests for exceptions to this policy must be submitted to the CISO for approval.<br>A documented exception is required before moving, copying, or storing customer or company confidential data on any media or removable device. All portable devices and removable media containing sensitive data must be encrypted using approved standards and mechanisms.</p>
+<h2>Violations &amp; Enforcement</h2>
+<p>Any known violations of this policy should be reported to the CISO. Violations can result in the immediate withdrawal or suspension of system and network privileges and/or disciplinary action in accordance with company procedures, up to and including termination of employment.</p>

@@ -1,0 +1,95 @@
+<h1>Incident Response Plan</h1>
+<h2>Purpose</h2>
+<p>This document establishes the plan for managing information security incidents and events, and offers guidance for employees or incident responders who believe they have discovered, or are responding to, a security incident.</p>
+<h2>Scope</h2>
+<p>This policy covers all information security or data privacy events or incidents.</p>
+<h2>Incident and Event Definitions</h2>
+<p>A security event is an observable occurrence relevant to the confidentiality, availability, integrity, or privacy of company-controlled data, systems, or networks.<br>A security incident is a security event which results in loss or damage to the confidentiality, availability, integrity, or privacy of company-controlled data, systems, or networks.</p>
+<h2>Incident Reporting &amp; Documentation Reporting</h2>
+<p>If a [COMPANY NAME] employee, contractor, user, or customer becomes aware of an information security event or incident, possible incident, imminent incident, unauthorized access, policy violation, security weakness, or suspicious activity, they shall immediately report the information using one of the following communication channels:</p>
+<ul>
+<li>Email information or reports about the event or incident</li>
+</ul>
+<p>Reporters should act as a good witness and treat the situation with the seriousness and clarity required for effective investigation. Reports should include specific details about what has been observed or discovered.</p>
+<h2>Severity</h2>
+<p>DevSecOps ("Information Security Team", "ISO") team shall monitor incident and event tickets and shall assign a ticket severity based on the following categories.</p>
+<h2>S3/S4 \- Low and Medium Severity</h2>
+<p>Issues meeting this severity are simply suspicions or odd behaviors. They are not verified and require further investigation. There is no clear indicator that systems have tangible risk and do not require emergency response. This includes lost/stolen laptops with disk encryption, suspicious emails, outages, strange activity on a laptop, etc.</p>
+<h2>S2 \- High Severity</h2>
+<p>High severity issues relate to problems where an adversary or active exploitation hasn't been proven yet, and may not have happened, but is likely to happen. This may include lost/stolen laptops without encryption, vulnerabilities with direct risk of exploitation, threats with risk or adversarial persistence on our systems (e.g.: backdoors, malware), malicious access of business data (e.g.: passwords, vulnerability data, payments information).</p>
+<h2>S1 \- Critical Severity</h2>
+<p>Critical issues relate to actively exploited risks and involve a malicious actor or threats that put any individual at risk of physical harm. Identification of active exploitation is required to meet this severity category.</p>
+<h2>Escalation and Internal Reporting</h2>
+<p>The incident escalation contacts can be found below in Appendix A.<br>S1 \- Critical Severity: S1 issues require immediate notification to CISO.<br>S2 \- High Severity: A Security Incident ticket must be created and the appropriate manager (see S1 above) must also be notified via email or Slack with a reference to the ticket number.<br>S3/S4 \- Medium and Low Severity: A Security Incident ticket must be created and assigned to the appropriate department for response.</p>
+<h2>Documentation</h2>
+<p>All reported security events, incidents, and response activities shall be documented and adequately protected in GitHub "Incident Ops" project.<br>A root cause analysis may be performed on all verified S1 and S2 security incidents. A root cause analysis report shall be documented and referenced in the incident ticket. The root cause analysis shall be reviewed by the Product Manager, or Head of Engineering who shall determine if a post-mortem meeting will be called.</p>
+<h2>Incident Response Process</h2>
+<p>For critical issues, the response team will follow an iterative response process designed to investigate, contain exploitation, eradicate the threat, recover systems and services, remediate vulnerabilities, and document a post-mortem report including the lessons learned from the incident.</p>
+<h2>Summary</h2>
+<ul>
+<li>Event reported</li>
+<li>Triage and analysis</li>
+<li>Investigation</li>
+<li>Containment &amp; neutralization (short term/triage)</li>
+<li>Recovery &amp; vulnerability remediation</li>
+<li>Hardening &amp; Detection improvements (lessons learned, long term response)</li>
+</ul>
+<h2>Detailed</h2>
+<ul>
+<li>CISO or Head of Support will manage the incident response effort</li>
+<li>If necessary, a central "War Room" will be designated, which may be a physical or virtual location (i.e Slack channel)</li>
+<li>A recurring Incident Response Meeting will occur at regular intervals until the incident is resolved</li>
+<li>Legal and executive staff will be informed as required</li>
+</ul>
+<h2>Incident Response Meeting Agenda</h2>
+<ul>
+<li>Update Incident Ticket and timelines</li>
+<li>Document new Indicators of Compromise (IOCs)</li>
+<li>Perform investigative Q\&amp;A</li>
+<li>Apply emergency mitigations</li>
+<li>External Reporting / Breach Reporting</li>
+<li>Plan long term mitigations</li>
+<li>Document Root Cause Analysis (RCA)</li>
+<li>Additional items as needed</li>
+</ul>
+<h2>Special Considerations</h2>
+<h3>Internal Issues</h3>
+<p>Issues where the malicious actor is an internal employee, contractor, vendor, or partner require sensitive handling. The incident manager shall contact Head of HR or Head of Operations directly and will not discuss with other employees. These are critical issues where follow-up must occur.</p>
+<h3>Compromised Communications</h3>
+<p>Incident responders must have Slack messaging arranged before listing themselves as incident members. If there are IT communication risks, an out-of-band solution will be chosen, and communicated to incident responders via phone.</p>
+<h3>Root Account Compromise</h3>
+<p>If an AWS root account compromise is known or expected, refer to the playbook in Appendix D.</p>
+<h2>Additional Requirements</h2>
+<ul>
+<li>Suspected and reported events and incidents shall be documented</li>
+<li>Suspected incidents shall be assessed and classified as either an event or an incident Incident response shall be performed according to this plan and any associated procedures.</li>
+<li>All incidents shall be formally documented, and a documented root cause analysis shall be performed</li>
+<li>Incident responders shall collect, store, and preserve incident-related evidence in accordance with industry guidance and best practices such as NIST SP 800-86 'Guide to Integrating Forensic. Techniques into Incident Response'</li>
+<li>Suspected and confirmed unauthorized access events shall be reviewed by the Incident Response Team. Breach determinations shall only be made by the CEO and legal counsel in coordination with executive management.</li>
+<li>[COMPANY NAME] shall promptly and properly notify customers, partners, users, affected parties, and regulatory agencies of relevant incidents or breaches in accordance with [COMPANY NAME] policies, contractual commitments, and regulatory requirements, as determined by the CEO and Legal Department.</li>
+<li>This Incident Response Plan shall be reviewed and formally tested at least annually. Results of IR plan testing activities including findings and lessons learned will be formally documented and maintained to support security, compliance, and audit requirements.</li>
+</ul>
+<h2>External Communications and Breach Reporting</h2>
+<p>Legal and executive staff shall confer with technical teams in the event of unauthorized access to company or customer systems, networks, and/or data. Legal staff along with the CEO shall determine if breach reporting or external communications are required. Breaches shall be reported to customers, consumers, data subjects and regulators without undue delay and in accordance with all contractual commitments and applicable legislation.<br>No personnel may disclose information regarding incidents or potential breaches to any third party or unauthorized person without the approval of legal and/or executive management.</p>
+<h2>Mitigation and Remediation</h2>
+<p>Legal and executive staff shall determine any immediate or long-term mitigations or remedial actions that need to be taken as a result of an incident or breach. In the event that mitigations or remedial actions are needed, executive staff shall direct personnel with respect to planning, communicating, and executing those activities.</p>
+<h2>Cooperation with Customers, Data Controller and Authorities</h2>
+<p>As needed and determined by legal and executive staff, the company shall cooperate with customers, Data Controllers, and regulators to fulfill all of its obligations in the event of an incident or data breach.</p>
+<h2>Roles &amp; Responsibilities</h2>
+<p>Every employee and user of any [COMPANY NAME] information resources has responsibilities toward the protection of the information assets. The table below establishes the specific responsibilities of the incident responder roles.</p>
+<h2>Response Team Members</h2>
+<table><thead><tr><th>Role</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td>Incident Manager (CISO)</td><td>The Incident Manager is the primary and ultimate decision maker during the response period. The Incident Manager is ultimately responsible for resolving the incident and formally closing incident response actions. These responsibilities include: Ensuring the right people from all functions are actively involved as appropriate; Communicating status updates to the appropriate person or teams at regular intervals; Resolving incidents in the immediate term; Determining necessary follow-up actions; Assigning follow-up activities to the appropriate people; Promptly reporting incident details which may trigger breach reporting, in writing to the CTO.</td></tr>
+<tr><td>Incident Response Team (IRT)</td><td>The individuals who have been engaged and are actively working on the incident. All members of the IRT will remain engaged in incident response until the incident is formally resolved, or they are formally dismissed by the Incident Manager.</td></tr>
+<tr><td>Engineers (Support and Development)</td><td>Qualified engineers will be placed into the on-call rotation and may act as the Incident Manager (if primary resources are not available) or a member of the IRT when engaged to respond to an incident. Engineers are responsible for understanding the technologies and components of the information systems, the security controls in place including logging, monitoring, and alerting tools, appropriate communications channels, incident response protocols, escalation procedures, and documentation requirements. When Engineers are engaged in incident response, they become members of the IRT.</td></tr>
+<tr><td>Users</td><td>Employees and contractors of [COMPANY NAME]. Users are responsible for following policies, reporting problems, suspected problems, weaknesses, suspicious activity, and security incidents and events.</td></tr>
+<tr><td>Customers</td><td>Customers are responsible for reporting problems with their use of [COMPANY NAME] services. Customers are responsible for verifying that reported problems are resolved.</td></tr>
+<tr><td>Legal Counsel</td><td>Responsible, in conjunction with the CEO and executive management, for determining if an incident presents legal or regulatory exposure as well as whether an incident shall be considered a reportable breach. Counsel shall review and approve in writing all external breach notices before they are sent to any external party.</td></tr>
+<tr><td>Executive Management</td><td>Responsible, in conjunction with the CEO and Legal Counsel, for determining if an incident shall be considered a reportable breach. An appropriate company officer shall review and approve in writing all external breach notices before they are sent to any external party. [COMPANY NAME] shall seek stakeholder consensus when determining whether a breach has occurred. The [COMPANY NAME] CEO shall make a final breach determination in the event that consensus cannot be reached.</td></tr>
+</tbody></table>
+<h2>Management Commitment</h2>
+<p>[COMPANY NAME] management has approved this policy and commits to providing the resources, tools, and training needed to reasonably respond to identified security events and incidents with the potential to adversely affect the company or its customers.</p>
+<h2>Exceptions</h2>
+<p>Requests for an exception to this Policy must be submitted to and authorized by the Head of DevSecOps / CISO for approval. Exceptions shall be documented.</p>
+<h2>Violations &amp; Enforcement</h2>
+<p>Any known violations of this policy should be reported to the Head of DevSecOps / CISO. Violations of this policy may result in immediate withdrawal or suspension of system and network privileges and/or disciplinary action in accordance with company procedures up to and including termination of employment.</p>
