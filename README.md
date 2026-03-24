@@ -84,6 +84,8 @@ Requires `zip` (standard on macOS/Linux).
 
 Claude will ask for your company name. It is stored in the Project's persistent storage and used to replace all `[COMPANY NAME]` placeholders throughout the policy templates. You won't be asked again.
 
+![First launch — company name onboarding](images/claude-skills-soc2-policies-1.png)
+
 ![SOC 2 policies dashboard](images/claude-skills-soc2-policies-2.png)
 
 ### Reviewing a policy
