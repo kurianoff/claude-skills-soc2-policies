@@ -16,9 +16,12 @@ jobs:
       - name: Build skill files
         run: make build
 
+      - name: Bundle skill files
+        run: cd dist && zip claude-skills.zip *.skill
+
       - name: Create GitHub Release
         run: |
-          gh release create ${{ github.ref_name }} dist/*.skill \
+          gh release create ${{ github.ref_name }} dist/claude-skills.zip \
             --title "Release ${{ github.ref_name }}" \
             --generate-notes
         env:
