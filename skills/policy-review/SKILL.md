@@ -35,21 +35,30 @@ save as HTML. Working copies in persistent storage are HTML.
 
 ---
 
-## HTML-only working copies — never modify templates
+## HTML-only working copies — lazy creation
 
 This skill operates on **HTML working copies** of policies.
 
-**If launched from soc2-policies:** The handoff prompt includes the full HTML
-working copy (company name already applied, may have prior edits). The prompt
-says "This is a WORKING COPY (HTML)." Use it directly — no conversion needed.
+**If launched from soc2-policies (typical flow):** The handoff prompt says
+"load from soc2:working:{id} in persistent storage. If no working copy exists,
+read the HTML template from references/templates/ and apply company name
+replacement to create one."
+
+Claude should:
+1. First, try to read `soc2:working:{policy-id}` from persistent storage.
+   If found, this is the working copy (may contain prior edits). Use it.
+2. If NOT found (first time reviewing this policy), read the HTML template
+   file from the soc2-policies skill's `references/templates/` directory.
+   Apply company name replacement (`[COMPANY NAME]` → actual name).
+   This HTML becomes the working copy. The review carousel will save it
+   to `soc2:working:{policy-id}` on export — do not save it now.
+3. Parse the HTML into sections and statements (Step 1), then render.
 
 **If launched standalone** (user uploads a file directly):
-1. If the file is markdown, convert to HTML once using the `renderMd()` function.
-   If already HTML, use as-is.
+1. If the file is markdown, convert to HTML once. If already HTML, use as-is.
 2. Check `soc2:company-name` in storage. If not found and the text contains
    `[COMPANY NAME]` placeholders, ask the user. Store at `soc2:company-name`.
 3. Apply company name replacement on the HTML string.
-4. Save the HTML working copy to `soc2:working:{policy-id}`.
 
 **Critical:** Never write back to template files. Never store markdown in
 working copies. All working copies are HTML in persistent storage.
