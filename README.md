@@ -110,10 +110,6 @@ Click **Export as Word** on any completed policy card. The policy-export skill g
 - Rejected statements appendix (if any)
 - Version history table
 
-### FUTURE STATE: Uploading your own policies
-
-You can upload your own `.md`, `.docx`, `.pdf`, or `.txt` policy files to the dashboard instead of using the bundled templates. They will be converted and stored as working copies in your Project.
-
 ---
 
 ## Why claude.ai Projects only?
@@ -147,6 +143,7 @@ The templates live in [`skills/soc2-policies/references/templates/`](skills/soc2
     ├── soc2-policies/
     │   ├── SKILL.md                  # skill instructions for Claude
     │   └── references/
+    │       ├── welcome-widget.md     # company name capture screen
     │       ├── dashboard-widget.md   # dashboard widget HTML/CSS/JS
     │       └── templates/            # 17 SOC 2 policy templates
     │           └── *.html

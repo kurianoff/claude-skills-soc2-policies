@@ -76,18 +76,38 @@ storage — Claude reads it from there instead of the template file.
 
 ---
 
-## Step 1: Launch the dashboard
+## Step 1: Determine company name and launch
 
-When this skill triggers:
+When this skill triggers, Claude must determine the company name before
+rendering the dashboard (because the dashboard template needs it as an
+injection variable).
 
-1. **Ask for company name** (first time only): Check `soc2:company-name` in
-   storage. If not found, ask the user. Save it. On subsequent visits, the
-   dashboard widget reads it from storage automatically.
+### Decision flow
 
-2. **Render the dashboard widget immediately** (Step 2). The widget reads
-   review status from storage on `init()`. No template files are read.
+1. **Check if the company name is already known** — from the current
+   conversation context (user said it, prior message included it, or a
+   `POLICY_REVIEW_COMPLETE` message mentioned it).
+2. **If known** → go directly to Step 2 (render the dashboard).
+3. **If NOT known** → render the welcome widget (COPY-AND-INJECT from
+   `references/welcome-widget.md`). This widget:
+   - Shows "Welcome to SOC 2 policy manager"
+   - Has a text input for company name
+   - On "Get started", saves the name to `soc2:company-name` in storage
+     and sends a `sendPrompt()` that triggers Step 2
 
-That's it. No initialization scripts, no helper widgets, no pre-loading.
+**Claude should NEVER ask for the company name in prose or via ask_user_input.**
+Always use the welcome widget. It provides a consistent first-run experience.
+
+### After the welcome widget
+
+The welcome widget sends:
+```
+Company name set to: Acme Corp
+Please render the SOC 2 policy dashboard for Acme Corp.
+```
+
+Claude receives this and renders the dashboard (Step 2) with
+`var COMPANY = "Acme Corp";`.
 
 ### Bundled policy templates (HTML, read-only)
 
