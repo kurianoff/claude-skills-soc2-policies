@@ -147,13 +147,13 @@ The templates live in [`skills/soc2-policies/references/templates/`](skills/soc2
     ├── soc2-policies/
     │   ├── SKILL.md                  # skill instructions for Claude
     │   └── references/
-    │       ├── dashboard-template.md # dashboard widget HTML/CSS/JS
+    │       ├── dashboard-widget.md   # dashboard widget HTML/CSS/JS
     │       └── templates/            # 17 SOC 2 policy templates
     │           └── *.html
     ├── policy-review/
     │   ├── SKILL.md
     │   └── references/
-    │       └── widget-template.md    # review carousel HTML/CSS/JS
+    │       └── review-widget.md      # review carousel HTML/CSS/JS
     └── policy-export/
         └── SKILL.md
 ```

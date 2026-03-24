@@ -94,23 +94,29 @@ var sections = [
 
 ---
 
-## Step 2: Build the interactive review carousel
+## Step 2: Build the interactive review carousel (COPY-AND-INJECT)
 
-Use `visualize:show_widget` to render the carousel. Read
-`references/widget-template.md` for the full template.
+Read `references/review-widget.md` — it contains the COMPLETE runnable widget
+code with all CSS, event handlers, storage logic, sendPrompt calls, and
+audit logging built in. Claude's job is:
 
-The widget renders statement text directly as HTML:
-```javascript
-h += '<div class="card-txt">' + st.text + '</div>';  // HTML, not esc()
-```
+1. Read the template file
+2. Set the injection variables at the top of the script block:
+   - `var POLICY_ID` — e.g. "incident-response"
+   - `var POLICY_TITLE` — e.g. "Incident response plan"
+   - `var COMPANY` — e.g. "Acme Corp"
+   - `var SECTIONS` — the parsed sections array from Step 1
+   - `var AI_SUGGESTION` — null (or {id: N, html: "..."} for AI rewrite re-renders)
+   - `var INITIAL_IDX` — 0 (or specific index for AI rewrite re-renders)
+   - `var INITIAL_VIEW` — "statements" (or "sections")
+3. Copy the entire widget code into `visualize:show_widget` VERBATIM
 
-Features:
-- **Carousel navigation**: One statement per view, dot indicators.
-- **Two view modes**: "By statement" and "By section".
-- **Auto-advance**: After Approve/Accept/Reject.
-- **Four actions**: Approve, Rewrite with AI, Edit manually, Reject.
-- **Version history form**: Editable version, date, author, approver.
-- **Export**: Saves full HTML working copy to storage, sends summary to Claude.
+**Do NOT modify any CSS, HTML, event handlers, button labels, or storage logic.**
+**Do NOT add functions, rename classes, or change the layout.**
+
+The only things Claude changes are the injection variables. Everything else —
+the carousel navigation, action buttons, version history form, export function,
+audit logging — is fixed template code that works identically every time.
 
 ---
 
@@ -210,6 +216,42 @@ SOC 2 auditors a self-contained provenance record for each policy.
 
 This skill does NOT generate Word documents. The **policy-export skill** handles
 that by reading the HTML working copy, version history, and audit log from storage.
+
+### Session persistence (survives AI rewrite roundtrips)
+
+The widget saves review progress to `soc2:review-session:{policyId}` after
+EVERY action — approve, reject, rewrite, undo, bulk approve, discard, and
+version history edits. This is separate from the final `soc2:review:{policyId}`
+which is written only on export.
+
+**Why this matters:** When the user triggers an AI rewrite, `sendPrompt()`
+creates a new widget in a new iframe. Without session persistence, all prior
+approvals/rejections would be lost. With it, the new widget loads the session
+state on `init()` and the user continues where they left off.
+
+**Storage keys:**
+- `soc2:review-session:{id}` — live working state, written after every action,
+  contains: statement decisions, audit log, view mode, carousel position,
+  version metadata. Cleared on final export.
+- `soc2:review:{id}` — final state, written only on "Save and return to
+  dashboard". This is what the dashboard and export skill read.
+
+**The session state stores:**
+```javascript
+{
+  decisions: {
+    "1": { status: "approved", text: "...", justification: "", aiSuggestion: null },
+    "6": { status: "rewritten", text: "<table>new...</table>", justification: "", aiSuggestion: null }
+  },
+  auditLog: [ { ts: "...", action: "approved", label: "Purpose", details: "" }, ... ],
+  viewMode: "statements",
+  currentIdx: 5,
+  versionMeta: { version: "1.0", date: "...", author: "...", ... }
+}
+```
+
+Only non-pending decisions are stored (to keep the payload small). On load,
+any statement ID not in `decisions` stays at its default pending state.
 
 ---
 
