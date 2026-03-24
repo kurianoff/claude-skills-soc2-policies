@@ -147,6 +147,7 @@ The templates live in [`skills/soc2-policies/references/templates/`](skills/soc2
     ├── soc2-policies/
     │   ├── SKILL.md                  # skill instructions for Claude
     │   └── references/
+    │       ├── welcome-widget.md     # company name capture screen
     │       ├── dashboard-widget.md   # dashboard widget HTML/CSS/JS
     │       └── templates/            # 17 SOC 2 policy templates
     │           └── *.html
