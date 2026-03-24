@@ -117,27 +117,21 @@ policy is drilled into for the first time.
 
 ---
 
-## Step 2: Build the dashboard widget
+## Step 2: Build the dashboard widget (COPY-AND-INJECT)
 
-Use `visualize:show_widget` to render the dashboard. Read
-`references/dashboard-template.md` for the complete HTML/CSS/JS template.
+Read `references/dashboard-widget.md` — it contains the COMPLETE runnable
+widget code. Claude's job is:
 
-### What the widget needs
+1. Read the template file
+2. Set `var COMPANY = "Actual Company Name";` (injection point 1)
+3. Set `var INJECTED = { ... };` with any known policy statuses (injection point 2)
+4. Copy the entire widget code into `visualize:show_widget` VERBATIM
 
-The widget is self-contained. It has:
-- **Hardcoded policy manifest** — all 17 policy titles, descriptions, categories
-  are baked into the widget JavaScript. No file reads needed.
-- **Storage reads for status** — on `init()`, reads `soc2:review:{id}` for
-  each policy to determine status (not started / in progress / completed).
-- **INJECTED state** (when applicable) — if Claude knows a policy was just
-  completed from a `POLICY_REVIEW_COMPLETE` message, inject that status
-  directly (see Step 4).
+**Do NOT modify any CSS, HTML, event handlers, button labels, or storage logic.**
+**Do NOT add functions, rename classes, or change the layout.**
 
-### What the widget does NOT need
-
-- Template files (never read at dashboard render time)
-- Working copies (only needed at drill-down time)
-- Any initialization beyond storage reads
+The only two things Claude changes are the COMPANY and INJECTED variables.
+Everything else is fixed template code that renders identically every time.
 
 ### Dashboard features
 
