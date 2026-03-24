@@ -1,0 +1,73 @@
+<h1>Secure Development Policy</h1>
+<h2>Purpose</h2>
+<p>To ensure that information security is designed and implemented within the development lifecycle for applications and information systems.</p>
+<h2>Scope</h2>
+<p>This policy applies to all [COMPANY NAME] applications and information systems that are business critical and/or process, store, or transmit confidential data. It is applicable to all internal and external engineers and developers of [COMPANY NAME] software and infrastructure.</p>
+<h2>Policy</h2>
+<p>This policy outlines the rules for the acquisition and development of software and systems within [COMPANY NAME].</p>
+<h2>System Change Control Procedures</h2>
+<p>Changes to systems within the development lifecycle shall be controlled using formal change control procedures. These procedures and requirements are described in the [COMPANY NAME] Operations Security Policy.<br>Significant code changes must be reviewed and approved by the VP of Engineering before being merged into any production branch in accordance with [COMPANY NAME]'s Secure Software Development Process.<br>Change control procedures shall ensure that development, testing, and deployment of changes are not performed by a single individual without approval and oversight.</p>
+<h2>Software Version Control</h2>
+<p>All [COMPANY NAME] software is version controlled and synced between contributors (developers). Access to the central repository is restricted based on an employee's role. All code is written, tested, and saved in a local repository before being synced to the origin repository.</p>
+<h2>Technical Review of Applications after Operating Platform Changes</h2>
+<p>When operating platforms are changed, business-critical applications shall be reviewed and tested to ensure that there is no adverse impact on organizational operations or security.</p>
+<h2>Restrictions on Changes to Software Packages</h2>
+<p>Modifications to third-party business application packages shall be discouraged, limited to necessary changes, and all changes shall be strictly controlled.</p>
+<h2>Secure System Engineering Principles</h2>
+<p>Principles for engineering secure systems shall be established, documented, maintained, and applied to any information system implementation efforts. At a minimum, the following secure-by-design and privacy-by-design principles shall be applied:<br><strong>Secure-by-design principles:</strong></p>
+<ol>
+<li>Minimize attack surface area</li>
+<li>Establish secure defaults</li>
+<li>The principle of least privilege</li>
+<li>The principle of defense in depth</li>
+<li>Fail securely</li>
+<li>Don't trust services</li>
+<li>Separation of duties</li>
+<li>Avoid security by obscurity</li>
+<li>Keep security simple</li>
+<li>Fix security issues correctly</li>
+</ol>
+<p><strong>Privacy-by-design principles:</strong></p>
+<ol>
+<li>Proactive not Reactive; Preventative not Remedial</li>
+<li>Privacy as the Default Setting</li>
+<li>Privacy Embedded into Design</li>
+<li>Full Functionality \- Positive-Sum, not Zero-Sum</li>
+<li>End-to-End Security \- Full Lifecycle Protection</li>
+<li>Visibility and Transparency \- Keep it Open</li>
+<li>Respect for User Privacy \- Keep it User-Centric</li>
+</ol>
+<p>Engineering documentation and technical references can be found in the Secure Software Development Process. Software developers are expected to adhere to [COMPANY NAME]'s coding standards throughout the development cycle, including standards for quality, commenting, and security.</p>
+<h2>Secure Development Environment</h2>
+<p>[COMPANY NAME] shall establish and appropriately protect environments for system development and integration efforts that cover the entire system development life cycle. The following environments shall be logically or physically segregated:</p>
+<ul>
+<li>Production</li>
+<li>Staging</li>
+<li>Development</li>
+</ul>
+<h2>Outsourced Development</h2>
+<p>[COMPANY NAME] shall supervise and monitor the activity of outsourced system development. Outsourced development shall adhere to all [COMPANY NAME] standards and policies.</p>
+<h2>System Security Testing</h2>
+<p>Testing of security functionality shall be performed at defined periods during the development life cycle. No code shall be deployed to [COMPANY NAME] production systems without documented, successful test results and evidence of security remediation activities.</p>
+<h2>Application Vulnerability Management</h2>
+<p>Application code should be scanned prior to deployment. Patches to address application vulnerabilities that materially impact security should be deployed within 90 days of discovery.</p>
+<h2>System Acceptance Testing</h2>
+<p>Acceptance testing programs and related criteria shall be established for new information systems, upgrades, and new versions.<br>Prior to deploying code, a Release Checklist MUST be completed which includes a checklist of all Test Plans which show the completion of all associated tests and remediation of identified issues.</p>
+<h2>Protection of Test Data</h2>
+<p>Test data shall be selected carefully, protected, and controlled. Confidential customer data shall be protected in accordance with all contracts and commitments. Customer data must not be used for testing purposes.</p>
+<h2>Acquisition of Third-Party Systems and Software</h2>
+<p>The acquisition of third-party systems and software shall be done in accordance with the requirements of the [COMPANY NAME] Third-Party Management Policy.</p>
+<h2>Developer Training</h2>
+<p>Software developers shall be provided with secure development training appropriate to their role at least annually. Training content shall be determined by management but shall address the prevention of common web application attacks and vulnerabilities. The following threats and vulnerabilities should be addressed as appropriate:</p>
+<ul>
+<li>Prevention of authorization bypass attacks</li>
+<li>Prevention of the use of insecure session IDs</li>
+<li>Prevention of Injection attacks</li>
+<li>Prevention of cross-site scripting attacks</li>
+<li>Prevention of cross-site request forgery attacks</li>
+<li>Prevention of the use of vulnerable libraries</li>
+</ul>
+<h2>Exceptions</h2>
+<p>Requests for an exception to this policy must be submitted to the VP of Engineering for approval.</p>
+<h2>Violations &amp; Enforcement</h2>
+<p>Any known violations of this policy should be reported to the VP of Engineering. Violations of this policy can result in immediate withdrawal or suspension of system and network privileges and/or disciplinary action in accordance with company procedures up to and including termination of employment.</p>

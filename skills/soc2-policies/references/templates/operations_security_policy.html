@@ -1,0 +1,69 @@
+<h1>Operations Security Policy</h1>
+<h2>Purpose</h2>
+<p>To ensure the correct and secure operation of information processing systems and facilities.</p>
+<h2>Scope</h2>
+<p>This policy applies to all [COMPANY NAME] information systems that are business-critical and/or process, store, or transmit company data. It applies to all employees of [COMPANY NAME] and other third-party entities with access to [COMPANY NAME] networks and system resources.</p>
+<h2>Operations Security</h2>
+<h2>Documented Operating Procedures</h2>
+<p>Both technical and administrative operating procedures shall be documented as needed and made available to all users who need them.</p>
+<h2>Change Management</h2>
+<p>Changes to the organization, business processes, information processing facilities, production software, infrastructure, and systems that affect information security in the production environment and financial systems shall be tested, reviewed, and approved prior to production deployment. All significant changes to in-scope systems and networks must be documented.<br>Change management processes shall include:</p>
+<ul>
+<li>Processes for planning and testing of changes, including remediation measures.</li>
+<li>Documented managerial approval and authorization before proceeding with changes that may have a significant impact on information security, operations, or the production platform.</li>
+<li>Advance communication/warning of changes, including schedules and a description of reasonably anticipated effects, provided to all relevant internal and external stakeholders.</li>
+<li>Documentation of all emergency changes and subsequent review.</li>
+<li>A process for remediating unsuccessful changes.</li>
+</ul>
+<h2>Capacity Management</h2>
+<p>The use of processing resources and system storage shall be monitored and adjusted to ensure that system availability and performance meets [COMPANY NAME] requirements.<br>Human resource skills, availability, and capacity shall be reviewed and considered as a component of capacity planning and as part of the annual risk assessment process.<br>Scaling resources for additional processing or storage capacity, without changes to the system, can be done outside of the standard change management and code deployment process.</p>
+<h2>Separation of Development, Staging, and Production Environments</h2>
+<p>Development and staging environments shall be strictly segregated from production SaaS environments to reduce the risks of unauthorized access or changes to the operational environment. Confidential production customer data must not be used in development or test environments.<br>Refer to the Data Management Policy for a description of Confidential data. If production customer data is approved for use in the course of development or testing, it shall be scrubbed of any such sensitive information whenever feasible.</p>
+<h2>Systems and Network Configuration, Hardening, and Review</h2>
+<p>Systems and networks shall be provisioned and maintained in accordance with the configuration and hardening standards described in Appendix A to this policy.<br>Firewalls and/or appropriate network access controls and configurations shall be used to control network traffic to and from the production environment in accordance with this policy.<br>Production network access configuration rules shall be reviewed at least annually. Tickets shall be created to obtain approvals for any needed changes.</p>
+<h2>Protection from Malware</h2>
+<p>To protect the company's infrastructure against the introduction of malicious software, detection, prevention, and recovery controls to protect against malware shall be implemented, combined with appropriate user awareness.<br>Anti-malware protections shall be utilized on all company-issued endpoints except for those running operating systems not normally prone to malicious software. Additionally, threat detection and response software shall be utilized for company email. The anti-malware protections utilized shall be capable of detecting all common forms of malicious threats and performing the appropriate mitigation activity (such as removing, blocking, or quarantining).<br>[COMPANY NAME] should scan all files upon their introduction to systems, and continually scan files upon access, modification, or download. Anti-malware definition and engine updates should be configured to be downloaded and installed automatically whenever new updates are available. Known or suspected malware incidents must be reported as a security incident.<br>It is a violation of company policy to disable or alter the configuration of anti-malware protections without authorization.</p>
+<h2>Information Backup</h2>
+<p>The need for backups of systems, databases, information, and data shall be considered and appropriate backup processes shall be designed, planned, and implemented. Backup procedures must include procedures for maintaining and recovering customer data in accordance with documented SLAs. Security measures to protect backups shall be designed and applied in accordance with the confidentiality or sensitivity of the data. Backup copies of information, software, and system images shall be taken regularly to protect against loss of data. Backups and restore capabilities shall be periodically tested, not less than annually.<br>Backups must be stored separately (in a separate availability zone) from the production data location.<br>[COMPANY NAME] does not regularly backup user devices like laptops. Users are expected to store critical files and information in company-sanctioned file storage repositories.<br>Backups are configured to run daily on in-scope systems. The backup schedules are maintained within the backup application software.<br>A backup restore test should be performed at least annually to validate the backup data and backup process.</p>
+<h2>Logging &amp; Monitoring</h2>
+<p>Production infrastructure shall be configured to produce detailed logs appropriate to the function served by the system or device. Event logs recording user activities, exceptions, faults, and information security events shall be produced, kept, and reviewed through manual or automated processes as needed. Appropriate alerts shall be configured for events that represent a significant threat to the confidentiality, availability, or integrity of production systems or Confidential data.<br>Logging should meet the following criteria for production applications and supporting infrastructure:</p>
+<ul>
+<li>Log user log-in and log-out.</li>
+<li>Log CRUD (create, read, update, delete) operations on application and system users and objects.</li>
+<li>Log security settings changes (including disabling or modifying of logging).</li>
+<li>Log application owner or administrator access to customer data (i.e. Access Transparency).</li>
+<li>Logs must include user ID, IP address, valid timestamp, type of action performed, and object of this action.</li>
+<li>Logs must be stored for at least 30 days and should not contain sensitive data or payloads.</li>
+</ul>
+<h2>Protection of Log Information</h2>
+<p>Logging facilities and log information shall be protected against tampering and unauthorized access.</p>
+<h2>Administrator &amp; Operator Logs</h2>
+<p>System administrator and system operator activities shall be logged and reviewed and/or alerted in accordance with the system classification and criticality.</p>
+<h2>Data Restore Logs</h2>
+<p>In the event the company needs to restore production data containing PII from backups, either for the purposes of providing services or for testing purposes, it shall be logged or tracked in auditable tickets.</p>
+<h2>Clock Synchronization</h2>
+<p>The clocks of all relevant information processing systems within an organization or security domain shall be synchronized to network time servers using reputable time sources.</p>
+<h2>File Integrity Monitoring and Intrusion Detection</h2>
+<p>[COMPANY NAME] production systems shall be configured to monitor, log, and self-repair and/or alert on suspicious changes to critical system files where feasible.<br>Alerts shall be configured for suspicious conditions and engineers shall review logs on a regular basis.<br>Unauthorized intrusions and access attempts or changes to [COMPANY NAME] systems shall be investigated and remediated in accordance with the Incident Response Plan.</p>
+<h2>Control of Operational Software</h2>
+<p>The installation of software on production systems shall follow the change management requirements defined in this policy.</p>
+<h2>Technical Vulnerability Management</h2>
+<p>Information about technical vulnerabilities of information systems being used shall be obtained in a timely fashion, the organization's exposure to such vulnerabilities shall be evaluated, and appropriate measures taken to address the associated risk. A variety of methods shall be used to obtain information about technical vulnerabilities, including vulnerability scanning, penetration tests, and review of external vendor alerts.<br>Vulnerability scans shall be performed on public-facing systems in the production environment at least quarterly.<br>Penetration tests of the applications and production network shall be performed at least annually, and additional scanning and testing shall be performed following major changes to production systems and software.<br>The DevOps and Engineering departments shall evaluate the severity of vulnerabilities identified from any source, and if it is determined to be a risk-relevant critical or high-risk vulnerability, a service ticket will be created. The [COMPANY NAME] assessed severity level may differ from the level automatically generated by scanning software or determined by external researchers based on [COMPANY NAME]'s internal knowledge and understanding of technical architecture and real-world impact/exploitability. Tickets are assigned to the system, application, or platform owners for further investigation and/or remediation.<br>Vulnerabilities assessed by [COMPANY NAME] shall be patched or remediated in the following timeframes:</p>
+<table><thead><tr><th>Determined Severity</th><th>Remediation Time</th></tr></thead><tbody>
+<tr><td>Critical</td><td>7 Days</td></tr>
+<tr><td>High</td><td>30 Days</td></tr>
+<tr><td>Medium</td><td>60 Days</td></tr>
+<tr><td>Low</td><td>90 Days</td></tr>
+<tr><td>Informational</td><td>As needed</td></tr>
+</tbody></table>
+<p>Service tickets for any vulnerability which cannot be remediated within the standard timeline must show a risk treatment plan and planned remediation timeline.</p>
+<h2>Restrictions on Software Installation</h2>
+<p>Rules governing the installation of software by users shall be established and implemented in accordance with the [COMPANY NAME] Information Security Policy.</p>
+<h2>Information Systems Audit Considerations</h2>
+<p>Audit requirements and activities involving verification of operational systems shall be carefully planned and agreed to minimize disruptions to business processes.</p>
+<h3>Systems Security Assessment &amp; Requirements</h3>
+<p>Risks shall be considered prior to the acquisition of, or significant changes to, systems, technologies, or facilities. Where requirements are formally identified, any relevant security requirements shall be included. The acquisition of new suppliers and services shall be made in accordance with the Third-Party Management Policy.<br>The company shall perform an annual network security assessment that includes a review of major changes to the environment such as new system components and network topology.</p>
+<h2>Exceptions</h2>
+<p>Requests for an exception to this policy must be submitted to the CISO for approval.</p>
+<h2>Violations &amp; Enforcement</h2>
+<p>Any known violations of this policy should be reported to the CISO. Violations of this policy can result in immediate withdrawal or suspension of system and network privileges and/or disciplinary action in accordance with company procedures up to and including termination of employment.</p>
