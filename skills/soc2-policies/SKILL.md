@@ -19,8 +19,8 @@ description: >
 A persistent dashboard for managing a collection of SOC 2 policy documents.
 Displays policies as cards with status tracking, enables drill-down into
 individual policy review (via the policy-review skill), persists all progress
-and audit history across sessions using artifact storage, and exports completed
-policies as Word documents (via the policy-export skill).
+across sessions using artifact storage, and exports completed policies as Word
+documents (via the policy-export skill).
 
 **All policy content is HTML throughout the entire pipeline.** Templates are
 stored as HTML. Working copies are HTML. Review state stores HTML. Exports
@@ -33,8 +33,8 @@ receive HTML. No markdown-to-HTML conversion happens at runtime.
 ```
 soc2-policies (this skill)
   ├── Dashboard UI (card grid, status, progress)
-  ├── HTML templates (references/templates/*.html)
-  ├── Persistent storage (working copies, review state, audit trail)
+  ├── HTML templates (references/templates/*.html) — read-only, read on demand
+  ├── Persistent storage (working copies, review state)
   └── Hands off to:
       ├── policy-review skill (per-document review)
       └── policy-export skill (Word document generation)
@@ -42,87 +42,78 @@ soc2-policies (this skill)
 
 ---
 
-## Step 1: Detect context and load state
+## CRITICAL: Lazy initialization — do NOT pre-create all working copies
 
-When this skill triggers, first check if there's existing saved state:
+The dashboard does NOT need working copies of all 17 policies to render. It
+only needs the hardcoded policy manifest (titles, descriptions, categories)
+and review status from `soc2:review:{id}` in persistent storage.
 
-1. Build the dashboard widget (Step 2). The widget itself will attempt to load
-   saved state from `window.storage` on initialization.
-2. If the user is uploading new policy templates, parse them and merge with any
-   existing state (don't overwrite completed reviews).
-3. If the user is returning ("where did I leave off", "open the dashboard"),
-   the widget loads persisted state automatically.
+**Working copies are created lazily — only when a user first reviews a policy.**
 
-### Company name
+### Why this matters
 
-Before launching the dashboard for the first time, politely ask the user for
-their company name. This is used to replace all `[COMPANY NAME]` and
-`[Company Name]` placeholders in the policy templates.
+Previous implementations tried to read all 17 HTML template files, write them
+all to persistent storage, then render the dashboard. This caused:
+- Multi-step initialization with helper widgets/scripts
+- Race conditions between storage writes and dashboard reads
+- Confusing "loading" states that broke the UX
 
-Store the company name in persistent storage at key `soc2:company-name`.
-On subsequent visits, load it from storage — don't ask again.
+The fix: **the dashboard renders immediately from hardcoded metadata + storage
+reads for review status. No template files are read at dashboard launch time.**
 
-When drilling down to a policy review (Step 3), always include the company name
-in the handoff prompt so the policy-review skill can apply the replacement.
+### When working copies ARE created
 
-### Bundled SOC 2 policy templates (HTML, read-only)
+A working copy is created at drill-down time (Step 3), not at dashboard launch:
+1. User clicks "Review" on a policy card
+2. Claude receives the sendPrompt with the policy ID
+3. Claude reads the ONE template file for that policy from `references/templates/`
+4. Claude applies company name replacement
+5. Claude saves the HTML working copy to `soc2:working:{policy-id}`
+6. Claude hands the HTML to the policy-review skill
 
-This skill ships with 17 pre-converted HTML policy templates in
-`references/templates/`. These are already HTML — no markdown conversion is
-needed at any point.
+On subsequent reviews of the same policy, the working copy already exists in
+storage — Claude reads it from there instead of the template file.
 
-The bundled templates are:
+---
 
-| File | Policy | Category |
-|------|--------|----------|
-| `acceptable_use_policy.html` | Acceptable use policy | Governance |
-| `access_control_policy.html` | Access control policy | Access |
-| `asset_management_policy.html` | Asset management policy | Operations |
-| `business_continuity_and_disaster_recovery_plan.html` | Business continuity and disaster recovery plan | Operations |
-| `code_of_conduct.html` | Code of conduct | HR |
-| `cryptography_policy.html` | Cryptography policy | Security |
-| `data_management_policy.html` | Data management policy | Data |
-| `human_resources_security_policy.html` | Human resources security policy | HR |
-| `incident_response_plan.html` | Incident response plan | Security |
-| `information_security_policy.html` | Information security policy | Security |
-| `information_security_roles_and_responsibilities.html` | Information security roles and responsibilities | Governance |
-| `operations_security_policy.html` | Operations security policy | Operations |
-| `physical_security_policy.html` | Physical security policy | Security |
-| `removable_media_policy.html` | Removable media policy | Security |
-| `risk_management_policy.html` | Risk management policy | Risk |
-| `secure_development_policy.html` | Secure development policy | Operations |
-| `third_party_management_policy.html` | Third-party management policy | Risk |
+## Step 1: Launch the dashboard
 
-### Working copies as HTML (customer workspace)
+When this skill triggers:
 
-On first initialization, the dashboard creates **working copies** from the HTML
-templates and stores them in persistent storage. Since the templates are already
-HTML, initialization is just: read template HTML → apply company name
-replacement → save to storage. No conversion step.
+1. **Ask for company name** (first time only): Check `soc2:company-name` in
+   storage. If not found, ask the user. Save it. On subsequent visits, the
+   dashboard widget reads it from storage automatically.
 
-Storage keys for working copies:
+2. **Render the dashboard widget immediately** (Step 2). The widget reads
+   review status from storage on `init()`. No template files are read.
 
-- `soc2:working:{policy-id}` — the full working copy as HTML
+That's it. No initialization scripts, no helper widgets, no pre-loading.
 
-**Initialization flow:**
-1. Read each template `.html` file from `references/templates/`.
-2. Apply company name replacement (`[COMPANY NAME]` → actual name) via string
-   replacement on the HTML.
-3. Save each HTML result to `soc2:working:{policy-id}` in persistent storage.
-4. On subsequent visits, load working copies from storage — don't re-read
-   templates unless the user explicitly requests a reset.
+### Bundled policy templates (HTML, read-only)
 
-**When drilling down to policy review (Step 3):** Always pass the HTML working
-copy from `soc2:working:{policy-id}`, never the raw template.
+This skill ships with 17 pre-converted HTML templates in
+`references/templates/`. They are read-only and only read when a specific
+policy is drilled into for the first time.
 
-**When a review completes:** The policy-review skill saves the updated HTML
-working copy back to `soc2:working:{policy-id}`.
-
-### Uploading custom templates
-
-Users can also upload their own policy files. If they upload markdown (`.md`),
-convert to HTML before saving as the working copy. If they upload `.html`, save
-directly. The working copy in storage is always HTML.
+| File | Policy ID | Policy | Category |
+|------|-----------|--------|----------|
+| `acceptable_use_policy.html` | acceptable-use | Acceptable use policy | Governance |
+| `access_control_policy.html` | access-control | Access control policy | Access |
+| `asset_management_policy.html` | asset-management | Asset management policy | Operations |
+| `business_continuity_and_disaster_recovery_plan.html` | business-continuity | Business continuity and disaster recovery plan | Operations |
+| `code_of_conduct.html` | code-of-conduct | Code of conduct | HR |
+| `cryptography_policy.html` | cryptography | Cryptography policy | Security |
+| `data_management_policy.html` | data-management | Data management policy | Data |
+| `human_resources_security_policy.html` | hr-security | Human resources security policy | HR |
+| `incident_response_plan.html` | incident-response | Incident response plan | Security |
+| `information_security_policy.html` | info-security | Information security policy | Security |
+| `information_security_roles_and_responsibilities.html` | roles-responsibilities | Information security roles and responsibilities | Governance |
+| `operations_security_policy.html` | operations-security | Operations security policy | Operations |
+| `physical_security_policy.html` | physical-security | Physical security policy | Security |
+| `removable_media_policy.html` | removable-media | Removable media policy | Security |
+| `risk_management_policy.html` | risk-management | Risk management policy | Risk |
+| `secure_development_policy.html` | secure-development | Secure development policy | Operations |
+| `third_party_management_policy.html` | third-party | Third-party management policy | Risk |
 
 ---
 
@@ -131,59 +122,77 @@ directly. The working copy in storage is always HTML.
 Use `visualize:show_widget` to render the dashboard. Read
 `references/dashboard-template.md` for the complete HTML/CSS/JS template.
 
-The dashboard provides:
+### What the widget needs
 
-### Card grid
-- Each policy is a card showing: title, category badge, description snippet,
-  review status (not started / in progress / completed), and progress stats.
-- Cards are color-coded by status.
+The widget is self-contained. It has:
+- **Hardcoded policy manifest** — all 17 policy titles, descriptions, categories
+  are baked into the widget JavaScript. No file reads needed.
+- **Storage reads for status** — on `init()`, reads `soc2:review:{id}` for
+  each policy to determine status (not started / in progress / completed).
+- **INJECTED state** (when applicable) — if Claude knows a policy was just
+  completed from a `POLICY_REVIEW_COMPLETE` message, inject that status
+  directly (see Step 4).
 
-### Top-level stats
-- Overall readiness: percentage of policies completed
-- Counts: completed / in progress / not started
+### What the widget does NOT need
 
-### Persistent storage
-The widget uses `window.storage` to save and load:
-- `soc2:manifest` — the list of policies with their metadata
-- `soc2:working:{policy-id}` — the full HTML working copy of each policy
-- `soc2:review:{policy-id}` — review decisions with full HTML text per statement
-- `soc2:versions:{policy-id}` — version history entries
-- `soc2:audit:{policy-id}` — per-policy audit trail (actions taken during review)
+- Template files (never read at dashboard render time)
+- Working copies (only needed at drill-down time)
+- Any initialization beyond storage reads
+
+### Dashboard features
+
+- Card grid with title, category badge, description, status, progress bar
+- Top-level stats: readiness %, completed/in-progress/not-started counts
+- Category filter buttons
+- Per-card actions: Review, Export as Word (completed only), Reset
+
+### Persistent storage keys
+
 - `soc2:company-name` — the customer's company name
-
-Note: audit tracking is per-policy, not global. Each policy carries its own
-audit log which gets included in the exported Word document.
-
-### Actions
-- **Review** (on each card): launches policy-review for that document
-- **Export as Word**: invokes the policy-export skill
-- **Reset**: clears review state and working copy for a policy
+- `soc2:manifest` — (optional) policy metadata, but the widget hardcodes this
+- `soc2:working:{policy-id}` — HTML working copy (created lazily on first review)
+- `soc2:review:{policy-id}` — review decisions with HTML text per statement
+- `soc2:versions:{policy-id}` — version history entries
+- `soc2:audit:{policy-id}` — per-policy audit trail
 
 ---
 
-## Step 3: Handle drill-down to policy review
+## Step 3: Handle drill-down to policy review (LAZY WORKING COPY CREATION)
 
-When the user clicks "Review" on a card, the dashboard must pass the **HTML
-working copy**, not the template. The widget loads the working copy from
-`soc2:working:{policy-id}` and sends a prompt like:
+When the user clicks "Review" on a card, the widget sends a `sendPrompt()`.
+Claude receives it and must:
+
+1. **Check storage for an existing working copy** at `soc2:working:{policy-id}`.
+2. **If found**: Use it directly — it may contain edits from a prior review.
+3. **If not found**: Read the HTML template file from `references/templates/`,
+   apply company name replacement (`[COMPANY NAME]` → actual name), and this
+   becomes the working copy. Do NOT save it to storage yet — the policy-review
+   carousel will save it on export.
+4. **Hand off to policy-review**: Parse the HTML into sections and statements,
+   then render the review carousel.
+
+The handoff prompt from the widget looks like:
 
 ```
-Review the following policy document using the policy-review skill.
-This is a WORKING COPY (HTML) — do not read from templates.
+I want to review the policy: "Incident Response Plan".
+Please use the policy-review skill...
 
-Policy ID: info-security-policy
-Policy title: Information Security Policy
+Policy ID: incident-response
 Company name: Acme Corp
-
-[full HTML working copy here]
+This is a WORKING COPY (HTML) — load from soc2:working:incident-response
+in persistent storage. If no working copy exists, read the HTML template
+from references/templates/ and apply company name replacement.
 ```
+
+**Claude reads ONE template file at this point — not all 17.** This is the
+lazy initialization in action.
 
 ---
 
 ## Step 4: Save review results back to dashboard (DUAL-SOURCE STATE)
 
 When a policy review completes, you'll receive a `POLICY_REVIEW_COMPLETE`
-message containing explicit status data for the reviewed policy:
+message containing explicit status data:
 
 ```
 POLICY_REVIEW_COMPLETE
@@ -199,13 +208,11 @@ STATEMENTS REVIEWED: 23
 
 ### What "dual-source" means
 
-The carousel widget saves review data to `window.storage` before sending
-`sendPrompt()`, but storage writes are async and may not have propagated by
-the time the new dashboard widget reads them. To prevent the "Not started"
-bug, the dashboard gets state from TWO sources:
+The carousel widget saves review data to storage before `sendPrompt()`, but
+writes are async and may not have propagated. The dashboard gets state from:
 
 1. **Injected state (from the prompt)** — Claude hardcodes the known policy
-   status directly into the widget's JavaScript as an override object:
+   status directly into the widget JavaScript:
 
 ```javascript
 var INJECTED = {
@@ -213,22 +220,19 @@ var INJECTED = {
 };
 ```
 
-2. **Storage state (for everything else)** — The widget reads
-   `soc2:review:{id}` for all 17 policies on init, same as before.
+2. **Storage state (for everything else)** — Widget reads `soc2:review:{id}`
+   for all 17 policies.
 
 ### How the widget merges them
 
-In the widget's `init()` function, after loading from storage, merge injected
-state so it takes priority:
-
 ```javascript
 async function init() {
-  // Load from storage for all policies
+  // Load from storage
   for (var i = 0; i < P.length; i++) {
     var r = await SL('soc2:review:' + P[i].id);
     if (r) ST[P[i].id] = r;
   }
-  // Injected state overrides storage (belt and suspenders)
+  // Injected state overrides storage
   Object.keys(INJECTED).forEach(function(id) {
     var inj = INJECTED[id];
     if (!ST[id] || inj.status === 'completed') {
@@ -246,19 +250,15 @@ async function init() {
 
 ### When to inject
 
-- **After a POLICY_REVIEW_COMPLETE message**: Always inject the completed
-  policy's status. This is the primary use case.
-- **When re-opening the dashboard mid-session**: If Claude knows from the
-  conversation history that certain policies have been reviewed, inject
-  those statuses too.
-- **On first launch with no prior state**: `INJECTED = {}` (empty) — the
-  widget relies entirely on storage.
+- **After POLICY_REVIEW_COMPLETE**: Always inject the completed policy.
+- **Mid-session re-open**: If conversation history shows reviewed policies,
+  inject those too.
+- **First launch / no known state**: `var INJECTED = {};`
 
 ### Critical rule
 
 **Never render a dashboard that relies solely on storage reads after a review
-completes.** Always inject the just-completed policy's status. Storage is the
-backup, not the primary source for the policy that was just reviewed.
+completes.** Always inject the just-completed policy's status.
 
 ---
 
@@ -266,12 +266,11 @@ backup, not the primary source for the policy that was just reviewed.
 
 When the user requests a Word export, hand off to the **policy-export skill**.
 
-The dashboard widget's export button loads the HTML working copy from
-`soc2:working:{policy-id}` and sends a `POLICY_EXPORT_REQUEST` prompt with the
-full HTML document. The policy-export skill converts HTML directly to `.docx`.
+The export button sends a prompt including the policy ID, company name, and
+instructions to read the HTML working copy, version history, and audit trail
+from persistent storage.
 
-**The dashboard never generates Word documents itself.** It always delegates
-to the policy-export skill.
+**The dashboard never generates Word documents itself.**
 
 ---
 
@@ -287,20 +286,18 @@ to the policy-export skill.
 - Export receives HTML.
 - The widget renders HTML directly via `innerHTML` — no parsing at runtime.
 
-If any input arrives as markdown (e.g., a user uploads a `.md` file), convert
-it to HTML once at the point of entry, then work exclusively with HTML from
-that point forward.
+If any input arrives as markdown (e.g., user uploads a `.md` file), convert
+to HTML once at point of entry, then work exclusively with HTML.
 
 ---
 
 ## Edge cases
 
-- **Returning with no prior state**: If `window.storage` has no saved data and
-  the user hasn't uploaded files, explain that they need to upload their policy
-  templates to get started (or use the bundled set).
-- **Uploading additional policies later**: Merge new uploads with existing state.
-  Don't overwrite policies that are already in progress or completed.
-- **Re-reviewing a completed policy**: Allow it — reset the policy's review state
-  but log the re-review start in the audit trail. The working copy retains prior
-  edits so the user starts from their last approved version.
-- **Large policy sets**: If more than 20 policies, add category filtering.
+- **Returning with no prior state**: Dashboard renders all 17 cards as "Not
+  started" from the hardcoded manifest. No initialization needed.
+- **Uploading custom policies**: Convert to HTML, save as working copy,
+  add to manifest in storage.
+- **Re-reviewing a completed policy**: Allow it — the working copy retains
+  prior edits so the user starts from their last approved version.
+- **Resetting a policy**: Delete `soc2:review:{id}`, `soc2:working:{id}`,
+  `soc2:versions:{id}`, and `soc2:audit:{id}`. Card reverts to "Not started".
