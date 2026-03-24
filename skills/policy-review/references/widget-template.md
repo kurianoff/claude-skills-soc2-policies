@@ -74,7 +74,8 @@ On export, the widget's JavaScript function must:
    - `soc2:review:{policyId}` — statement-level decisions with full HTML text
    - `soc2:versions:{policyId}` — all version history entries (prior + current)
    - `soc2:audit:{policyId}` — per-policy audit trail (appended, not replaced)
-4. Send `POLICY_REVIEW_COMPLETE` with change summary AND version metadata:
+4. Send `POLICY_REVIEW_COMPLETE` with change summary, version metadata,
+   AND explicit dashboard injection data:
 
 ```
 POLICY_REVIEW_COMPLETE
@@ -86,8 +87,51 @@ Author: Jane Smith
 Approved by: John Doe
 Description: Annual review
 
+REVIEW STATUS: completed
+STATEMENTS TOTAL: 15
+STATEMENTS REVIEWED: 15
+
 CHANGE SUMMARY:
 - 14 approved, 1 rewritten: "Confidentiality", 0 rejected
+
+Please render the SOC 2 dashboard and inject this policy's status directly
+into the widget: { id: "acceptable-use", status: "completed", reviewed: 15, total: 15 }
+```
+
+The `REVIEW STATUS`, `STATEMENTS TOTAL`, and `STATEMENTS REVIEWED` lines are
+critical — they tell Claude exactly what to inject into the dashboard widget
+so it doesn't rely solely on storage reads (which may not have propagated).
+
+Here is the export function pattern for the widget:
+```javascript
+async function exportReview() {
+  // ... read form fields, build HTML, build audit log ...
+  // Await ALL storage writes
+  await window.storage.set('soc2:working:' + policyId, JSON.stringify(fullHtml));
+  await window.storage.set('soc2:review:' + policyId, JSON.stringify({status:'completed', statements:stmts}));
+  await window.storage.set('soc2:versions:' + policyId, JSON.stringify({versions:allVersions}));
+  await window.storage.set('soc2:audit:' + policyId, JSON.stringify(auditLog));
+
+  var reviewed = stmts.filter(function(s){return s.status!=='pending';}).length;
+  var msg = 'POLICY_REVIEW_COMPLETE\n'
+    + 'Policy: ' + policyTitle + '\n'
+    + 'Policy ID: ' + policyId + '\n'
+    + 'Version: ' + currentVersion.version + '\n'
+    + 'Date: ' + currentVersion.date + '\n'
+    + 'Author: ' + currentVersion.author + '\n'
+    + 'Approved by: ' + currentVersion.approvedBy + '\n'
+    + 'Description: ' + currentVersion.description + '\n\n'
+    + 'REVIEW STATUS: completed\n'
+    + 'STATEMENTS TOTAL: ' + stmts.length + '\n'
+    + 'STATEMENTS REVIEWED: ' + reviewed + '\n\n'
+    + 'CHANGE SUMMARY:\n- ' + approved.length + ' approved, '
+    + rewritten.length + ' rewritten, '
+    + rejected.length + ' rejected\n\n'
+    + 'Please render the SOC 2 dashboard and inject this policy status directly '
+    + 'into the widget: { id: "' + policyId + '", status: "completed", '
+    + 'reviewed: ' + reviewed + ', total: ' + stmts.length + ' }';
+  sendPrompt(msg);
+}
 ```
 
 ### Audit log implementation in the widget

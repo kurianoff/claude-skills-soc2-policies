@@ -13,10 +13,33 @@ array at the top of the script block.
 
 ## Storage keys
 
-- `soc2:manifest` — JSON array of policy metadata (id, title, description, category, status)
-- `soc2:content:{id}` — full policy text for each policy
+- `soc2:manifest` — JSON array of policy metadata
+- `soc2:working:{id}` — full HTML working copy of each policy
 - `soc2:review:{id}` — review decisions: `{ status, statements: [{id, label, status, text, originalText, justification}] }`
-- `soc2:audit` — JSON array of audit entries: `{ timestamp, action, policyId, policyTitle, details }`
+- `soc2:versions:{id}` — version history entries
+- `soc2:audit:{id}` — per-policy audit trail (chronological action log)
+- `soc2:company-name` — the customer's company name
+
+## Dual-source state (CRITICAL)
+
+The dashboard uses two sources for policy status:
+
+1. **INJECTED state** — Claude hardcodes known policy statuses into the widget
+   from the `POLICY_REVIEW_COMPLETE` message. This is a JavaScript object at
+   the top of the script block:
+   ```javascript
+   var INJECTED = {
+     "incident-response": { status: "completed", reviewed: 23, total: 23 },
+     "business-continuity": { status: "completed", reviewed: 11, total: 11 }
+   };
+   ```
+   When there's no known state to inject (e.g. first launch), use `var INJECTED = {};`
+
+2. **Storage state** — The widget reads `soc2:review:{id}` for all policies.
+
+On `init()`, storage is read first, then INJECTED overrides it. This ensures
+the just-completed policy always shows correctly even if storage hasn't
+propagated yet.
 
 ## Full template
 

@@ -147,7 +147,8 @@ When the user clicks "Save and return to dashboard", the widget's JavaScript:
    - `soc2:review:{policyId}` — statement decisions with full HTML text
    - `soc2:versions:{policyId}` — version history (all prior + current)
    - `soc2:audit:{policyId}` — per-policy audit trail
-5. **Sends `POLICY_REVIEW_COMPLETE`** with change summary AND version metadata:
+5. **Sends `POLICY_REVIEW_COMPLETE`** with change summary, version metadata,
+   AND explicit dashboard state data:
 
 ```
 POLICY_REVIEW_COMPLETE
@@ -159,14 +160,32 @@ Author: Jane Smith
 Approved by: John Doe
 Description: Annual review and update
 
+REVIEW STATUS: completed
+STATEMENTS TOTAL: 15
+STATEMENTS REVIEWED: 15
+
 CHANGE SUMMARY:
 - 14 statements approved as-is
 - 1 statement rewritten: "Confidentiality and data protection"
 - 0 statements rejected
+
+Please render the SOC 2 dashboard. When building the dashboard widget, inject
+this policy's status directly into the widget state as a fallback:
+  { id: "acceptable-use", status: "completed", reviewed: 15, total: 15 }
+The widget should ALSO read from persistent storage for all other policies.
+This dual-source approach ensures the dashboard renders correctly even if
+storage writes from this widget haven't fully propagated yet.
 ```
 
-The version metadata MUST be included in this message so the dashboard and
-export skill can use it without relying on storage reads.
+**Why dual-source matters:** The `sendPrompt()` call creates a new widget in
+a new iframe. Storage writes from the previous widget may not have completed
+before the new widget tries to read them. By including explicit status data
+in the prompt, Claude can inject it directly into the dashboard widget as
+a known-state override. The widget merges this with whatever it reads from
+storage for the other 16 policies.
+
+The version metadata MUST also be included in this message so the dashboard
+and export skill can use it without relying on storage reads.
 
 ### Per-policy audit trail
 

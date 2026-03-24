@@ -180,14 +180,85 @@ Company name: Acme Corp
 
 ---
 
-## Step 4: Save review results back to dashboard
+## Step 4: Save review results back to dashboard (DUAL-SOURCE STATE)
 
 When a policy review completes, you'll receive a `POLICY_REVIEW_COMPLETE`
-message with a change summary. The full HTML working copy has already been
-saved to `soc2:working:{policy-id}` by the review widget's JavaScript.
+message containing explicit status data for the reviewed policy:
 
-1. Read the updated review state from `soc2:review:{policy-id}` in storage.
-2. Update the dashboard to reflect the new status.
+```
+POLICY_REVIEW_COMPLETE
+Policy: Incident Response Plan
+Policy ID: incident-response
+REVIEW STATUS: completed
+STATEMENTS TOTAL: 23
+STATEMENTS REVIEWED: 23
+...
+```
+
+**You MUST use dual-source state when re-rendering the dashboard.**
+
+### What "dual-source" means
+
+The carousel widget saves review data to `window.storage` before sending
+`sendPrompt()`, but storage writes are async and may not have propagated by
+the time the new dashboard widget reads them. To prevent the "Not started"
+bug, the dashboard gets state from TWO sources:
+
+1. **Injected state (from the prompt)** — Claude hardcodes the known policy
+   status directly into the widget's JavaScript as an override object:
+
+```javascript
+var INJECTED = {
+  "incident-response": { status: "completed", reviewed: 23, total: 23 }
+};
+```
+
+2. **Storage state (for everything else)** — The widget reads
+   `soc2:review:{id}` for all 17 policies on init, same as before.
+
+### How the widget merges them
+
+In the widget's `init()` function, after loading from storage, merge injected
+state so it takes priority:
+
+```javascript
+async function init() {
+  // Load from storage for all policies
+  for (var i = 0; i < P.length; i++) {
+    var r = await SL('soc2:review:' + P[i].id);
+    if (r) ST[P[i].id] = r;
+  }
+  // Injected state overrides storage (belt and suspenders)
+  Object.keys(INJECTED).forEach(function(id) {
+    var inj = INJECTED[id];
+    if (!ST[id] || inj.status === 'completed') {
+      ST[id] = {
+        status: inj.status,
+        statements: Array.from({length: inj.total}, function(_, i) {
+          return { id: i+1, status: i < inj.reviewed ? 'approved' : 'pending' };
+        })
+      };
+    }
+  });
+  loaded = true; render();
+}
+```
+
+### When to inject
+
+- **After a POLICY_REVIEW_COMPLETE message**: Always inject the completed
+  policy's status. This is the primary use case.
+- **When re-opening the dashboard mid-session**: If Claude knows from the
+  conversation history that certain policies have been reviewed, inject
+  those statuses too.
+- **On first launch with no prior state**: `INJECTED = {}` (empty) — the
+  widget relies entirely on storage.
+
+### Critical rule
+
+**Never render a dashboard that relies solely on storage reads after a review
+completes.** Always inject the just-completed policy's status. Storage is the
+backup, not the primary source for the policy that was just reviewed.
 
 ---
 
