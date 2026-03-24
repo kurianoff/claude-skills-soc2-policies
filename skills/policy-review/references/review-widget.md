@@ -184,7 +184,7 @@ function getCounts(){var c={approved:0,rewritten:0,rejected:0,pending:0};allItem
 function getSecForItem(item){for(var i=0;i<SECTIONS.length;i++){if(SECTIONS[i].items.find(function(x){return x.id===item.id}))return SECTIONS[i]}return SECTIONS[0]}
 function logAction(action,label,details){auditLog.push({ts:new Date().toISOString(),action:action,label:label,details:details||""})}
 
-function saveSession(){
+async function saveSession(){
   var data={};
   allItems.forEach(function(s){
     if(state[s.id].status!=="pending"||state[s.id].aiSuggestion!==null){
@@ -192,7 +192,7 @@ function saveSession(){
     }
   });
   var payload={decisions:data,auditLog:auditLog,viewMode:viewMode,currentIdx:currentIdx,versionMeta:currentVersion};
-  try{window.storage.set(SESSION_KEY,JSON.stringify(payload))}catch(e){}
+  try{await window.storage.set(SESSION_KEY,JSON.stringify(payload))}catch(e){}
 }
 
 function loadSession(saved){
@@ -219,7 +219,7 @@ function loadSession(saved){
 function render(){
   if(!loaded){document.getElementById("app").innerHTML='<div style="text-align:center;padding:3rem;color:var(--color-text-secondary)">Loading review state...</div>';return}
   var app=document.getElementById("app"),c=getCounts(),navItems=viewMode==="statements"?allItems:SECTIONS,total=navItems.length;
-  var h='<div class="top"><button class="back" onclick="goBack()">\u2190 Dashboard</button><div class="vt"><button class="'+(viewMode==="statements"?"active":"")+'" onclick="setView(\'statements\')">By statement</button><button class="'+(viewMode==="sections"?"active":"")+'" onclick="setView(\'sections\')">By section</button></div></div>';
+  var h='<div class="top"><button class="back" onclick="goBack().catch(console.error)">\u2190 Dashboard</button><div class="vt"><button class="'+(viewMode==="statements"?"active":"")+'" onclick="setView(\'statements\')">By statement</button><button class="'+(viewMode==="sections"?"active":"")+'" onclick="setView(\'sections\')">By section</button></div></div>';
   h+='<div class="pb"><div class="ps"><b>'+c.approved+'</b> approved</div><div class="ps"><b>'+c.rewritten+'</b> rewritten</div><div class="ps"><b>'+c.rejected+'</b> rejected</div><div class="ps"><b>'+c.pending+'</b> pending</div></div>';
   h+='<div class="nb"><button class="nv" onclick="navPrev()" '+(currentIdx===0?"disabled":"")+">"+'\u2190 Previous</button><div class="ni"><b>'+(currentIdx+1)+"</b> of <b>"+total+"</b>";
   if(viewMode==="statements")h+='<br><span style="font-size:12px">'+esc(getSecForItem(allItems[currentIdx]).title)+"</span>";
@@ -240,7 +240,7 @@ function render(){
     h+='<div class="vh-f"><label>Approved by</label><input type="text" id="vh-approved" value="'+esc(currentVersion.approvedBy)+'" placeholder="Approver name" onchange="updateVH(\'approvedBy\',this.value)"></div>';
     h+='</div><input type="text" class="vh-d" id="vh-desc" value="'+esc(currentVersion.description)+'" placeholder="Description of changes" onchange="updateVH(\'description\',this.value)"></div>';
   }
-  if(allDone)h+='<div style="text-align:center;margin-top:1rem"><button onclick="exportReview()" style="font-size:14px;padding:10px 24px;border-radius:var(--border-radius-md);cursor:pointer;font-weight:500;border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary)">Save and return to dashboard \u2197</button></div>';
+  if(allDone)h+='<div style="text-align:center;margin-top:1rem"><button onclick="exportReview().catch(console.error)" style="font-size:14px;padding:10px 24px;border-radius:var(--border-radius-md);cursor:pointer;font-weight:500;border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary)">Save and return to dashboard \u2197</button></div>';
   else if(!showVersions)h+='<div style="text-align:center;margin-top:1rem"><button onclick="showVersions=true;render()" style="font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);cursor:pointer;border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary)">Edit version history</button></div>';
   app.innerHTML=h;
 }
@@ -254,7 +254,7 @@ function renderCard(item){
   h+='<div class="ct">'+st.text+"</div>";
   if(st.status==="rejected"&&st.justification)h+='<div class="rejr"><b>Rejection reason:</b> '+esc(st.justification)+"</div>";
   if(st.status==="rewritten")h+='<div class="orig"><b>Original:</b> '+stripTags(st.originalText)+"</div>";
-  if(activeMode==="ai-prompt"&&activeId===item.id){h+='<textarea class="ta" id="ai-'+item.id+'" placeholder="Tell me what to change, add, or remove..."></textarea><div class="acts"><button class="bw" onclick="submitAi('+item.id+')">Rewrite with AI \u2197</button><button onclick="cancelA()">Cancel</button></div>'}
+  if(activeMode==="ai-prompt"&&activeId===item.id){h+='<textarea class="ta" id="ai-'+item.id+'" placeholder="Tell me what to change, add, or remove..."></textarea><div class="acts"><button class="bw" onclick="submitAi('+item.id+').catch(console.error)">Rewrite with AI \u2197</button><button onclick="cancelA()">Cancel</button></div>'}
   else if(activeMode==="manual"&&activeId===item.id){h+='<textarea class="ta" id="man-'+item.id+'">'+stripTags(st.text)+'</textarea><div class="acts"><button class="bm" onclick="submitMan('+item.id+')">Save rewrite</button><button onclick="cancelA()">Cancel</button></div>'}
   else if(activeMode==="reject"&&activeId===item.id){h+='<textarea class="ta" id="rej-'+item.id+'" placeholder="Why are you rejecting this statement?"></textarea><div class="acts"><button class="bj" onclick="submitRej('+item.id+')">Confirm rejection</button><button onclick="cancelA()">Cancel</button></div>'}
   else if(st.aiSuggestion!==null){h+='<div class="ais"><div class="ais-l">AI suggested rewrite</div><div class="ais-t">'+st.aiSuggestion+'</div></div><div class="acts"><button class="ba" onclick="acceptAi('+item.id+')">Accept</button><button class="bw" onclick="startAi('+item.id+')">Refine further</button><button class="bm" onclick="startManAi('+item.id+')">Edit manually</button><button onclick="discardAi('+item.id+')">Discard</button></div>'}
@@ -273,7 +273,7 @@ function autoAdv(){if(viewMode==="statements"){var max=allItems.length-1;if(curr
 function approve(id){state[id].status="approved";state[id].aiSuggestion=null;activeMode=null;activeId=null;var it=allItems.find(function(x){return x.id===id});logAction("approved",it?it.label:"","");autoAdv();saveSession();render()}
 function bulkApprove(sid){var sec=SECTIONS.find(function(s){return s.id===sid});if(sec)sec.items.forEach(function(i){if(state[i.id].status==="pending"){state[i.id].status="approved";logAction("approved",i.label,"bulk approve")}});saveSession();render()}
 function startAi(id){activeMode="ai-prompt";activeId=id;render();setTimeout(function(){var e=document.getElementById("ai-"+id);if(e)e.focus()},50)}
-function submitAi(id){var ta=document.getElementById("ai-"+id);var p=ta?ta.value.trim():"";if(!p)return;activeMode=null;activeId=null;saveSession();var cur=state[id].aiSuggestion!==null?state[id].aiSuggestion:state[id].text;var item=allItems.find(function(x){return x.id===id});sendPrompt("POLICY_REWRITE_REQUEST\nPolicy: "+POLICY_TITLE+"\nPolicy ID: "+POLICY_ID+"\nCompany name: "+COMPANY+"\nStatement ID: "+id+"\nStatement: "+item.label+"\nCurrent index: "+currentIdx+"\nView mode: "+viewMode+"\nCurrent text (HTML): "+cur+"\nInstructions: "+p+"\n\nPlease rewrite this statement and render an updated policy review carousel with the AI suggestion shown inline.")}
+async function submitAi(id){var ta=document.getElementById("ai-"+id);var p=ta?ta.value.trim():"";if(!p)return;activeMode=null;activeId=null;await saveSession();var cur=state[id].aiSuggestion!==null?state[id].aiSuggestion:state[id].text;var item=allItems.find(function(x){return x.id===id});sendPrompt("POLICY_REWRITE_REQUEST\nPolicy: "+POLICY_TITLE+"\nPolicy ID: "+POLICY_ID+"\nCompany name: "+COMPANY+"\nStatement ID: "+id+"\nStatement: "+item.label+"\nCurrent index: "+currentIdx+"\nView mode: "+viewMode+"\nCurrent text (HTML): "+cur+"\nInstructions: "+p+"\n\nPlease rewrite this statement and render an updated policy review carousel with the AI suggestion shown inline.")}
 function startMan(id){activeMode="manual";activeId=id;render();setTimeout(function(){var e=document.getElementById("man-"+id);if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},50)}
 function startManAi(id){state[id].text=state[id].aiSuggestion||state[id].text;state[id].aiSuggestion=null;activeMode="manual";activeId=id;render();setTimeout(function(){var e=document.getElementById("man-"+id);if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},50)}
 function submitMan(id){var ta=document.getElementById("man-"+id);if(ta&&ta.value.trim()){var nt="<p>"+ta.value.trim().replace(/\n\n/g,"</p><p>").replace(/\n/g,"<br>")+"</p>";state[id].text=nt;state[id].status="rewritten";state[id].aiSuggestion=null;var it=allItems.find(function(x){return x.id===id});logAction("rewritten (manual)",it?it.label:"")}activeMode=null;activeId=null;saveSession();render()}
@@ -283,7 +283,7 @@ function acceptAi(id){state[id].text=state[id].aiSuggestion;state[id].status="re
 function discardAi(id){state[id].aiSuggestion=null;saveSession();render()}
 function cancelA(){activeMode=null;activeId=null;render()}
 function resetS(id){state[id]={status:"pending",text:state[id].originalText,originalText:state[id].originalText,justification:"",aiSuggestion:null};activeMode=null;activeId=null;var it=allItems.find(function(x){return x.id===id});logAction("reset to pending",it?it.label:"");saveSession();render()}
-function goBack(){sendPrompt("Open the SOC 2 dashboard and show my current progress.")}
+async function goBack(){await saveSession();sendPrompt("Open the SOC 2 dashboard and show my current progress.")}
 
 async function exportReview(){
   var ve=document.getElementById("vh-ver"),de=document.getElementById("vh-date"),ae=document.getElementById("vh-author"),ab=document.getElementById("vh-approved"),ds=document.getElementById("vh-desc");
