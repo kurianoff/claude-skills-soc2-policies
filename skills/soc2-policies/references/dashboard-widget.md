@@ -198,7 +198,7 @@ function render(){
     h+='<div class="acts">';
     h+='<button class="b-rv" onclick="rv(\''+p.id+'\')">Review \u2197</button>';
     if(s==="dn")h+='<button class="b-ex" onclick="ex(\''+p.id+'\')">Export as Word \u2197</button>';
-    if(s!=="ns")h+='<button onclick="rs(\''+p.id+'\')">Reset</button>';
+    if(s!=="ns")h+='<button onclick="rs(\''+p.id+'\').catch(console.error)">Reset</button>';
     h+='</div></div>';
   });
   h+='</div>';
