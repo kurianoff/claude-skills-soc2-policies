@@ -84,12 +84,16 @@ Requires `zip` (standard on macOS/Linux).
 
 Claude will ask for your company name. It is stored in the Project's persistent storage and used to replace all `[COMPANY NAME]` placeholders throughout the policy templates. You won't be asked again.
 
+![SOC 2 policies dashboard](images/claude-skills-soc2-policies-2.png)
+
 ### Reviewing a policy
 
 1. Open the dashboard → click **Review** on any policy card.
 2. The policy-review skill opens a carousel showing one statement at a time.
 3. For each statement: **Approve**, **Reject** (with a reason), **Edit manually**, or **Rewrite with AI**.
 4. When done, click **Save and return to dashboard** — progress is saved automatically.
+
+![Policy review carousel](images/claude-skills-soc2-policies-3.png)
 
 ### Exporting to Word
 
