@@ -133,10 +133,29 @@ function gp(id){
 }
 
 async function init(){
-  await SS("soc2:company-name",COMPANY);
+  if(COMPANY&&COMPANY!=="REPLACE_COMPANY_NAME")await SS("soc2:company-name",COMPANY);
   for(var i=0;i<P.length;i++){
-    var r=await SL("soc2:review:"+P[i].id);
-    if(r)ST[P[i].id]=r;
+    var pid=P[i].id;
+    var r=await SL("soc2:review:"+pid);
+    if(r)ST[pid]=r;
+    var sess=await SL("soc2:review-session:"+pid);
+    if(sess&&sess.decisions){
+      var keys=Object.keys(sess.decisions);
+      if(keys.length>0){
+        var total=sess.totalStatements||0;
+        if(!total&&ST[pid]&&ST[pid].statements)total=ST[pid].statements.length;
+        if(!total){var maxId=0;keys.forEach(function(k){var n=parseInt(k);if(n>maxId)maxId=n});total=maxId}
+        if(total>0){
+          var stmts=[];
+          for(var j=1;j<=total;j++){
+            var d=sess.decisions[j];
+            stmts.push({id:j,status:d?d.status||"pending":"pending"});
+          }
+          var allDecided=stmts.filter(function(s){return s.status!=="pending"}).length;
+          ST[pid]={status:allDecided>=total?"completed":"in-progress",statements:stmts};
+        }
+      }
+    }
   }
   Object.keys(INJECTED).forEach(function(id){
     var inj=INJECTED[id];
@@ -197,7 +216,7 @@ function render(){
     }
     h+='<div class="acts">';
     h+='<button class="b-rv" onclick="rv(\''+p.id+'\')">Review \u2197</button>';
-    if(s==="dn")h+='<button class="b-ex" onclick="ex(\''+p.id+'\')">Export as Word \u2197</button>';
+    if(s==="dn")h+='<button class="b-ex" onclick="ex(\''+p.id+'\').catch(console.error)">Export as Word \u2197</button>';
     if(s!=="ns")h+='<button onclick="rs(\''+p.id+'\').catch(console.error)">Reset</button>';
     h+='</div></div>';
   });
@@ -213,10 +232,36 @@ function rv(id){
   sendPrompt("I want to review the policy: \""+p.t+"\". Please use the policy-review skill to parse it into sections and statements, then launch the interactive review carousel.\n\nPolicy ID: "+id+"\nCompany name: "+COMPANY+"\nThis is a WORKING COPY (HTML) \u2014 load from soc2:working:"+id+" in persistent storage. If no working copy exists, read the HTML template from references/templates/ and apply company name replacement to create one.");
 }
 
-function ex(id){
+async function ex(id){
   var p=P.find(function(x){return x.id===id});
   if(!p)return;
-  sendPrompt("Export the completed policy \""+p.t+"\" (ID: "+id+") as a Word document using the policy-export skill.\nRead the HTML working copy from soc2:working:"+id+", version history from soc2:versions:"+id+", and audit trail from soc2:audit:"+id+".\nCompany name: "+COMPANY);
+  var htmlData=await SL("soc2:working:"+id);
+  if(!htmlData){sendPrompt("Error: No working copy found for policy \""+p.t+"\" ("+id+"). Please review it first.");return}
+  var vData=await SL("soc2:versions:"+id);
+  var vInfo="";
+  if(vData&&vData.versions&&vData.versions.length>0){
+    var last=vData.versions[vData.versions.length-1];
+    vInfo="\nVersion: "+(last.version||"1.0")+"\nDate: "+(last.date||"")+"\nAuthor: "+(last.author||"")+"\nApproved by: "+(last.approvedBy||"")+"\nDescription: "+(last.description||"");
+    vInfo+="\n\nFULL VERSION HISTORY:\n";
+    vData.versions.forEach(function(v){vInfo+="- v"+v.version+" ("+v.date+"): "+v.description+(v.author?" by "+v.author:"")+(v.approvedBy?", approved by "+v.approvedBy:"")+"\n"});
+  }
+  var aData=await SL("soc2:audit:"+id);
+  var aInfo="";
+  if(aData&&aData.length>0){
+    aInfo="\nAUDIT TRAIL ("+aData.length+" entries):\n";
+    aData.forEach(function(e){aInfo+="- "+e.ts+" | "+e.action+" | "+e.label+(e.details?" | "+e.details:"")+"\n"});
+  }
+  var rData=await SL("soc2:review:"+id);
+  var rejInfo="";
+  if(rData&&rData.statements){
+    var rejected=rData.statements.filter(function(s){return s.status==="rejected"});
+    if(rejected.length>0){
+      rejInfo="\nREJECTED STATEMENTS:\n";
+      rejected.forEach(function(s){rejInfo+="- "+s.label+": "+s.justification+"\n"});
+    }
+  }
+  var htmlStr=typeof htmlData==="string"?htmlData:JSON.stringify(htmlData);
+  sendPrompt("Export the completed policy \""+p.t+"\" (ID: "+id+") as a Word document using the policy-export skill.\nCompany name: "+COMPANY+vInfo+aInfo+rejInfo+"\n\nFULL DOCUMENT (HTML):\n"+htmlStr);
 }
 
 async function rs(id){
@@ -224,6 +269,7 @@ async function rs(id){
   if(!p)return;
   delete ST[id];
   await SD("soc2:review:"+id);
+  await SD("soc2:review-session:"+id);
   await SD("soc2:working:"+id);
   await SD("soc2:audit:"+id);
   await SD("soc2:versions:"+id);
