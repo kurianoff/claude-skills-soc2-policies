@@ -191,7 +191,7 @@ async function saveSession(){
       data[s.id]={status:state[s.id].status,text:state[s.id].text,justification:state[s.id].justification||"",aiSuggestion:state[s.id].aiSuggestion}
     }
   });
-  var payload={decisions:data,auditLog:auditLog,viewMode:viewMode,currentIdx:currentIdx,versionMeta:currentVersion};
+  var payload={decisions:data,totalStatements:allItems.length,auditLog:auditLog,viewMode:viewMode,currentIdx:currentIdx,versionMeta:currentVersion};
   try{await window.storage.set(SESSION_KEY,JSON.stringify(payload))}catch(e){}
 }
 
@@ -317,7 +317,7 @@ async function init(){
     if(saved)loadSession(JSON.parse(saved.value));
   }catch(e){}
   if(AI_SUGGESTION&&AI_SUGGESTION.id&&state[AI_SUGGESTION.id]){state[AI_SUGGESTION.id].aiSuggestion=AI_SUGGESTION.html}
-  try{var sv=await window.storage.get("soc2:versions:"+POLICY_ID);if(sv){var data=JSON.parse(sv.value);if(data.versions&&data.versions.length>0){priorVersions=data.versions;var last=priorVersions[priorVersions.length-1];var parts=last.version.split(".");currentVersion.version=parts[0]+"."+(parseInt(parts[1]||"0")+1)}}}catch(e){}
+  try{var sv=await window.storage.get("soc2:versions:"+POLICY_ID);if(sv){var data=JSON.parse(sv.value);if(data.versions&&data.versions.length>0){priorVersions=data.versions;var last=priorVersions[priorVersions.length-1];var parts=(last.version||"1.0").split(".");var major=parseInt(parts[0])||1;var minor=parseInt(parts[1])||0;currentVersion.version=major+"."+(minor+1)}}}catch(e){}
   loaded=true;
   render();
 }

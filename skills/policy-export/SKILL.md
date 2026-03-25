@@ -32,26 +32,47 @@ Word format — no markdown intermediate step is involved at any point.
 
 ## Input format
 
-This skill expects a `POLICY_EXPORT_REQUEST` message containing:
+The export request comes from the dashboard's "Export as Word" button. The
+prompt includes ALL data needed to generate the document — Claude does NOT
+need to read from `window.storage` (which is only accessible from widget
+iframes, not from Claude's computer tools environment).
 
+The prompt contains:
+- Policy name, ID, and company name
+- Version metadata (version, date, author, approved by, description)
+- Full version history (all prior versions)
+- Audit trail entries (timestamped action log)
+- Rejected statements with justifications (if any)
+- Instruction to read HTML working copy from `soc2:working:{id}`
+
+**The HTML working copy is included directly in the export prompt** under the
+`FULL DOCUMENT (HTML):` header. Claude does NOT need to read from storage or
+render helper widgets — all data needed for the Word document is in the prompt.
+
+Example prompt from dashboard:
 ```
-POLICY_EXPORT_REQUEST
-Policy: Acceptable Use Policy
-Policy ID: acceptable-use
+Export the completed policy "Incident Response Plan" (ID: incident-response)
+as a Word document using the policy-export skill.
+Read the HTML working copy from soc2:working:incident-response in persistent storage.
 Company name: Acme Corp
+Version: 1.1
+Date: 2026-03-23
+Author: Jane Smith
+Approved by: John Doe
+Description: Annual review and update
 
-VERSION HISTORY:
-| Version | Date | Description | Author | Approved by |
-| 1.0 | 2026-03-23 | Initial review | Jane Smith | John Doe |
+FULL VERSION HISTORY:
+- v1.0 (2026-01-15): Initial revision
+- v1.1 (2026-03-23): Annual review and update by Jane Smith, approved by John Doe
 
-FULL DOCUMENT (HTML):
-<h1>Acceptable Use Policy</h1>
-<h2>Purpose and Scope</h2>
-<p>The purpose of this policy is to...</p>
-[the entire finalized policy as HTML]
+AUDIT TRAIL (15 entries):
+- 2026-03-23T10:15:00Z | approved | Purpose |
+- 2026-03-23T10:15:05Z | approved | Scope |
+- 2026-03-23T10:16:30Z | rewritten (AI) | Roles and responsibilities |
+- 2026-03-23T10:17:00Z | rejected | Root account compromise | Not applicable to our infrastructure
 
-REJECTED STATEMENTS (if any):
-- Statement label: "original text" — Reason: justification
+REJECTED STATEMENTS:
+- Root account compromise: Not applicable to our infrastructure
 ```
 
 The FULL DOCUMENT section contains the complete policy as HTML with all user

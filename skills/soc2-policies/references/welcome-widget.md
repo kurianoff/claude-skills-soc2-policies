@@ -61,9 +61,9 @@ async function start(){
   try{await window.storage.set("soc2:company-name",JSON.stringify(name))}catch(e){}
   sendPrompt("Company name set to: "+name+"\nPlease render the SOC 2 policy dashboard for "+name+".");
 }
-function handleKey(e){if(e.key==="Enter"){e.preventDefault();start()}}
+function handleKey(e){if(e.key==="Enter"){e.preventDefault();start().catch(console.error)}}
 var el=document.getElementById("welcome");
-el.innerHTML='<div class="w-title">Welcome to SOC 2 policy manager</div><div class="w-desc">Before we begin, what is your company name? This will be used to personalize all 17 policy templates.</div><input type="text" class="w-input" id="co-name" placeholder="Your company name" oninput="checkInput()" onkeydown="handleKey(event)" autofocus><br><button class="w-btn" id="go-btn" onclick="start()" disabled>Get started</button>';
+el.innerHTML='<div class="w-title">Welcome to SOC 2 policy manager</div><div class="w-desc">Before we begin, what is your company name? This will be used to personalize all 17 policy templates.</div><input type="text" class="w-input" id="co-name" placeholder="Your company name" oninput="checkInput()" onkeydown="handleKey(event)" autofocus><br><button class="w-btn" id="go-btn" onclick="start().catch(console.error)" disabled>Get started</button>';
 setTimeout(function(){var i=document.getElementById("co-name");if(i)i.focus()},100);
 </script>
 ```
